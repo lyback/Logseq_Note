@@ -1,0 +1,51 @@
+(function ($) {
+    var ScrollBottom = function (ele, opt) {
+        this.$ele = ele;
+        this.defaults = {
+            distance: 10
+        };
+        this.options = $.extend({}, this.defaults, opt);
+    };
+    ScrollBottom.prototype = {
+        init: function () {
+            this.render();
+            this.bind();
+        },
+        render: function() {
+
+        },
+        bind: function() {
+            var $this = this;
+            this.$ele.on('scroll', $.proxy(this.scrollBottom, this));
+        },
+        scrollTop: function() {
+            return Math.max(
+                document.body.scrollTop,
+                document.documentElement.scrollTop
+            );
+        },
+        documentHeight: function() {
+            return Math.max(
+                document.body.scrollHeight,
+                document.documentElement.scrollHeight
+            );
+        },
+        windowHeight: function() {
+            return (document.compatMode == "CSS1Compat")?document.documentElement.clientHeight:document.body.clientHeight;
+        },
+        scrollBottom: function() {
+            var _this = this;
+            var bottom = this.documentHeight() - this.scrollTop() - this.windowHeight();
+            if(Math.abs(bottom) <= this.options.distance) {
+                if (_this.options.callback && typeof(_this.options.callback) == 'function') {
+                    _this.options.callback();
+                }
+            }
+        }
+    };
+    $.fn.scrollBottom = function (options) {
+        var scrollBottom = new ScrollBottom(this, options);
+        scrollBottom.init();
+        return this;
+    }
+})(jQuery);

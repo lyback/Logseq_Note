@@ -1,0 +1,74 @@
+(function($) {
+    var constructor = function (ele, opt) {
+        // 应用该插件的元素
+        this.$ele = ele;
+        // 插件的默认参数
+        this.defaults = {
+            top: 0,
+            positionChange: false,
+            reference: '.fixed-label',
+            zIndex: 99
+        };
+        // 用extend方法将默认参数和自定义参数合并
+        this.options = $.extend({}, this.defaults, opt);
+    };
+    // 构造函数原型上的方法（根据需求自定义）
+    constructor.prototype = {
+        init: function () {
+            var _this = this;
+            _this.render();
+            _this.bind();
+        },
+        render: function () {
+            this.WINDOW = $(window);
+            this.FIXEDLABEL = $(this.options.reference);
+        },
+        bind: function () {
+            this.WINDOW.on('scroll', $.proxy(this.setPosition, this));
+
+        },
+        setPosition: function () {
+            var _this = this;
+            var height = document.body.scrollTop || document.documentElement.scrollTop;
+            if(_this.FIXEDLABEL.offset().top - height <= _this.options.top) {
+                if(_this.options.positionChange) {
+                    _this.$ele.css({
+                        position: "fixed",
+                        top: _this.options.top,
+                        zIndex: _this.zIndex,
+                        width: _this.options.positionChange ? '100%' : '1180',
+                        boxShadow: '0 0 6px 0 rgba(74, 78, 91, 0.22)'
+                    })
+                } else {
+                    _this.$ele.css({
+                        position: "fixed",
+                        zIndex: _this.zIndex,
+                        top: _this.options.top,
+                    })
+                }
+            } else {
+                if(_this.options.positionChange) {
+                    _this.$ele.css({
+                        position: "static",
+                        width: 1180,
+                        boxShadow: '0 0 0 0 #fff'
+                    })
+                } else {
+                    _this.$ele.css({
+                        position: "relative",
+                        top: 0
+                    })
+                }
+            }
+        }
+    };
+    // 将插件挂载到jQuery对象上，供元素使用
+    /*
+    * @parms  options{ top 元素本身距顶部的位置，即滚动多少置顶}
+    * */
+    $.fn.posFixTop = function (options) {
+        var scrollToTop = new constructor(this, options);
+        scrollToTop.init();
+        return this;
+    }
+})(jQuery);

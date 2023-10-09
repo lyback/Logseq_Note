@@ -1,0 +1,295 @@
+(function($, factory) {
+    var module = factory();
+    module.init();
+})(jQuery, function() {
+    var Constructor = function() {
+        //  判断data是否为空，不为空的话将data中的数据挂载到this
+        if (!$.isEmptyObject(this.data)) {
+            for (var key in this.data) {
+                this[key] = this.data[key];
+            }
+        }
+        //  将methods中的方法挂载到this
+        if (!$.isEmptyObject(this.methods)) {
+            for (var key1 in this.methods) {
+                this[key1] = this.methods[key1];
+            }
+        }
+        //  为元素绑定事件
+        if (!$.isEmptyObject(this.eventConfig())) {
+            for (var key2 in this.eventConfig()) {
+                if(!$.isEmptyObject(this.eventConfig()[key2])) {
+                    for(var key3 in this.eventConfig()[key2]) {
+                        var ev = this.eventConfig()[key2][key3];
+                        $(key3).off(key2).on(key2, $.proxy(ev, this));
+                    }
+                }
+            }
+        }
+    };
+    Constructor.prototype = {
+        data: {
+            id: $("input[name='id']").val(),
+            type: $("input[name='dataType']").val(),
+            mpId: $("input[name='mp_id']").val(),
+
+            // 更多新知加载更多
+            hasMore: $('input[name="hasMore"]').val(),
+            showtime: $('input[name="showtime"]').val(),
+            toptime: $('input[name="toptime"]').val(),
+            isAbleLoad: false
+        },
+        render: function (data, templateEle, renderedEle) {
+            var html = template(templateEle, data);
+            $(renderedEle).append(html);
+        },
+        eventConfig: function() {
+            var $this = this;
+            return {
+                'click': {
+                    '.recommend-subscribe_item .focus-btn': this.focus,
+                    '.article-detail_focus': $this.giveFocus,
+                    '.side-focus_btn': this.giveFocus,
+                    '.article_content img': $this.watchBigPhoto,
+                    '.article-bottom_advertise img.close-adver-logo': this.closeArticleAdver,
+                    '.side-libirary-search_container .search-logo': this.libirarySearch,
+                    '.hang-baidu_adv .close': this.closeBaiduadv
+                },
+                'keyup': {
+                    '.side-libirary-search_container input': this.enterSearch
+                }
+            }
+        },
+        init: function() {
+            var $this = this;
+            this.setLeftTagsFixed();
+            this.isShowAdver();
+            this.getRightProductList();
+            // this.getRefereeReadList();
+            $('.referee-focus').off('click').on('click', '.focus-btn' ,$.proxy(this.starfocus, this));
+        },
+        methods: {
+            closeBaiduadv:function(){
+                $(".hang-baidu_adv").remove();
+            },
+            setLeftTagsFixed: function() {
+                //  设置左侧频道的外层高度
+                var sideChannelH = $('.content-panel_right').innerHeight();
+                $('.content-panel_right').css({height: sideChannelH});
+
+                //  侧边栏悬浮
+                if($('.author-msg').length > 0) {
+                    $('.author-msg').posFixTop({
+                        reference: '.author-fixed-label',
+                        top: 65
+                    });
+                }
+
+                // if($('.article-side-nav_wrapper').length > 0) {
+                //     $('.article-side-nav_wrapper').posFixTop({
+                //         reference: '.left-fixed_label',
+                //         top: 65
+                //     });
+                // }
+                if($('.article-header-fixed_label').length > 0) {
+                    $('.page-wrapper_article .header').posFixTop({
+                        reference: '.article-header-fixed_label',
+                        top: 0,
+                        zIndex: 998
+                    });
+                }
+            },
+            //右侧新耀之星关注
+            starfocus: function(ev) {
+                var target = $(ev.target);
+                var mpid = target.attr("data-mpid");
+                var state = target.attr("data-state");
+                $.ajax({
+                    type: "POST",
+                    url: API + "m=addnos&c=My&a=attention",
+                    data: {
+                        target_id: mpid,
+                    },
+                    success: function (data) {
+                        if (data.errcode == "0") {
+                            if (state == "0") {
+                                target.addClass('focus');
+                                target.attr('title', "取消关注");
+                                target.attr("data-state", "1");
+                            } else {
+                                target.removeClass('focus');
+                                target.attr('title', "关注");
+                                target.attr("data-state", "0");
+                            }
+                        } else if (data.errcode == "-100000") {
+                            $("body").loginWrap({
+                                type:"login"
+                            })
+                        } else {
+                            prompt("500", "2000", false, data.errstr)
+                        }
+                    },
+                    error: function (arr) {
+                        console.log(arr)
+                    }
+                });
+            },
+            //左侧推荐关注
+            focus: function(ev) {
+                var e = ev || window.event;
+                var target = $(e.target);
+                var state = target.attr('data-state');
+                var data = {
+                    target_id: target.attr('data-mpid'),
+                }
+                $.ajax({
+                    url: API + 'm=addnos&c=My&a=attention',
+                    type: 'POST',
+                    data: data
+                }).done(function(res) {
+                    if(res.errcode === 0) {
+                        target.toggleClass('focused')
+                        target.attr('data-state', state == 1 ? 0 : 1)
+                        if(target.attr('contnet-change') == 1) {
+                            target.text(state == 1 ? '订阅' : '已订阅')
+                        }
+                    }
+                    if(res.errcode === -100000) {
+                        // window.location.href = res.data.redirectUrl
+                        $("body").loginWrap({
+                            type:"login"
+                        })
+                    }
+                })
+            },
+            //  文章底部关注
+            giveFocus: function(ev) {
+                var $this = this;
+                var e = ev || window.event;
+                var state = $(e.target).attr("data-state");
+                var target = $(ev.target);
+                var data = {
+                    target_id: target.attr('data-mpid'),
+                }
+                $.ajax({
+                    type: "post",
+                    url: API + "m=addnos&c=My&a=attention",
+                    data: data,
+                    success: function (data) {
+                        if (data.errcode == "0") {
+                            var changedState = state == 0 ? 1 : 0;
+                            var changedText = state == 0 ? '已关注' : '关注'
+                            $('.side-focus_btn').toggleClass('focused').attr("data-state", changedState).html(changedText);
+                            $('.article-detail_focus').toggleClass('focused').attr("data-state", changedState).html(changedText);
+                        } else if(data.errcode == "-100000"){
+                            // var loginUrl = data.data.redirectUrl;
+                            // window.open(loginUrl,"_self")
+                            $("body").loginWrap({
+                                type:"login"
+                            })
+                        } else {
+                            prompt("500", "2000", false, data.errstr)
+                        }
+                    },
+                    error: function (arr) {
+                        console.log(arr)
+                    }
+                });
+            },
+            getImgArr: function() {
+                var imgArr = [];
+                for(var i = 0; i < $('.article_content img').length; i++) {
+                    var src = $('.article_content img').eq(i).attr('src');
+                    imgArr.push(src);
+                }
+                return imgArr;
+            },
+            watchBigPhoto: function(ev) {
+                var e = ev || window.event;
+                var currentImg = $(e.target).attr('src');
+                $('html').setPhotoWatch({
+                    imgArr: this.getImgArr(),
+                    position: this.getImgArr().indexOf(currentImg)
+                })
+            },
+            // 计算广告在当天的结束时间
+            endTime: function() {
+                var storeEndT = window.localStorage.getItem('endT'), endT;
+                if(storeEndT) {
+                    endT =  parseInt(storeEndT);
+                } else {
+                    endT = parseInt($('input[name="tomorrow-time"]').val());
+                    window.localStorage.setItem('endT', endT);
+                }
+                return endT;
+            },
+            // 是否展示广告
+            isShowAdver: function() {
+                var currentT = parseInt(new Date().getTime() / 1000);
+                if(currentT < this.endTime()) {
+                    var showArticleAdver = window.localStorage.getItem('showArticleAdver');
+                    if(showArticleAdver == 'false') {
+                        $('.article-bottom_advertise').hide();
+                    } else {
+                        $('.article-bottom_advertise').show();
+                    }
+                } else {
+                    window.localStorage.setItem('showArticleAdver', '');
+                    window.localStorage.setItem('endT', '');
+                }
+            },
+            // 关闭广告
+            closeArticleAdver: function(e) {
+                e.stopPropagation();
+                window.localStorage.setItem('showArticleAdver', false);
+                $('.article-bottom_advertise').hide();
+            },
+            //  文章右侧产品列表
+            getRightProductList: function() {
+                var $this = this;
+                $.ajax({
+                    url: API + 'c=ProductLink&a=getProductList',
+                    type: 'POST',
+                    data: {
+                        mp_id: $('input[name="mp_id"]').val(),
+                        tag_ids: $('input[name="tag_ids"]').val()
+                    }
+                }).done(function(res) {
+                    if(res.errcode === 0) {
+                        if(res.list.length > 0) {
+                            $this.render(res, 'articleSideProductTemp', '.product-selection_wrapper');
+                        }
+                    }
+                })
+            },
+            //  右侧推荐阅读列表
+            getRefereeReadList: function() {
+                var $this = this;
+                $.ajax({
+                    url: API + 'm=addons&c=Article&a=getFlowArticle',
+                    type: 'POST',
+                }).done(function(res) {
+                    if(res.errcode === 0) {
+                        $this.render(res, 'refereeReadTemp', '.referee-read_list');
+                    }
+                })
+            },
+            // 右侧子库搜索
+            libirarySearch: function(ev) {
+                var e = ev || window.event;
+                var keyword = $('.side-libirary-search_container input').val();
+                var searchUrl = $('.side-libirary-search_container .search-logo').attr('data-val').replace('xxx', keyword);
+                window.location.href = searchUrl;
+            },
+            // 回车搜索
+            enterSearch: function(ev) {
+                var e = ev || window.event;
+                if(e.keyCode === 13) {
+                    this.libirarySearch();
+                }
+            }
+        }
+    };
+    return new Constructor();
+});
+

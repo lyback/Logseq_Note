@@ -1,0 +1,9 @@
+window.SYXZ = {};
+SYXZ.DOMAIN = 'https://www.shangyexinzhi.com';
+SYXZ.CDN = 'https://img.shangyexinzhi.com/cdn/main/release';
+SYXZ.API_DOMAIN = 'api';
+SYXZ.SUBWAY_DOMAIN = 'shangyexinzhi.com';
+SYXZ.SOCKET_HOST = 'wss://wss.shangyexinzhi.com';
+SYXZ.SOCKET_PORT = '9090';
+SYXZ.LOGIN_URL = 'https://my.shangyexinzhi.com/#/login';
+SYXZ.REGISTER_URL = 'https://my.shangyexinzhi.com/#/login';

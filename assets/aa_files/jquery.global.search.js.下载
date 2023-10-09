@@ -1,0 +1,83 @@
+(function($) {
+    var searchConstructor = function (ele, opt) {
+        // 应用该插件的元素
+        this.$ele = ele;
+        this.baseUrl = '/wwwapi';
+        // 用extend方法将默认参数和自定义参数合并
+        this.options = $.extend({}, this.defaults, opt);
+    };
+    // 构造函数原型上的方法（根据需求自定义）
+    searchConstructor.prototype = {
+        defaults: {},
+        init: function () {
+            this.bind();
+        },
+        render: function () {
+            $('body').append("<div class='popup-wrapper'>" +
+                "<div class='popup-inner'>" +
+                    "<div class='inner-header'>" +
+                        "<img class='syxz-logo' src='" + SYXZ.CDN + "/static/images/logo.png' />" +
+                        "<img class='close-popup_btn' src='" + SYXZ.CDN + "/static/images/ico/close-search.png' />" +
+                    "</div>" +
+                    "<div class='input-wrapper'>" +
+                        "<input placeHolder='请输入关键词' />" +
+                        "<img src='" + SYXZ.CDN + "/static/images/ico/header-search.png' />" +
+                    "</div>" +
+                    "<div class='hot-word_wrapper'>" +
+                        "<p># 搜索热词 #</p>" +
+                        "<ul class='hot-word_list'></ul>" +
+                    "</div>" +
+                "</div>" +
+            "</div>").fadeIn(300).css({'width': '100%', 'height': '100%', 'overflow': 'hidden'});
+            $('.close-popup_btn').off('click').on('click', $.proxy(this.closePopup, this));
+            $('.input-wrapper img').off('click').on('click', $.proxy(this.doSearch, this));
+            $('.input-wrapper input').on('keydown', $.proxy(this.enterSearch, this));
+            this.getHotWord();
+        },
+        bind: function () {
+            this.$ele.off('click').on('click', $.proxy(this.render, this));
+        },
+        closePopup: function() {
+            $('body .popup-wrapper').fadeOut(300).remove();
+            $('body').css({
+                'width': 'auto',
+                'height': 'auto',
+                'overflow': 'visible'
+            })
+        },
+        doSearch: function() {
+            var keyword = $('.input-wrapper input').val(),
+                type = '';
+            var url = WWWAPI + 'c=Search&a=index&type='+ type + '&keyword=' + keyword;
+            window.location.href = url;
+        },
+        enterSearch: function(event) {
+            var ev = event || window.event;
+            console.log(ev.keyCode);
+            if(ev.keyCode === 13) {
+                this.doSearch();
+            }
+        },
+        //  获取热词
+        getHotWord: function() {
+            $.ajax({
+                url: WWWAPI + 'm=api&c=searchapi&a=hotwords',
+                type: 'get'
+            }).done(function(res) {
+                if(res.errcode == 0) {
+                    var str = '';
+                    for(var i = 0, len = res.list.length; i < len; i++) {
+                        str += '<li><a href='+ res.list[i].url +'>' + res.list[i].name + '</a></li>'
+                    }
+                    $('.hot-word_list').append(str);
+                }
+            })
+        }
+    };
+    // 将插件挂载到jQuery对象上，供元素使用
+    $.fn.globalSearch = function (options) {
+        var globalSearch = new searchConstructor(this, options);
+        globalSearch.init();
+        return this;
+    }
+})(jQuery);

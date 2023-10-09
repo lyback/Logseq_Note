@@ -1,0 +1,250 @@
+/**
+ * 内容格式化脚本
+ * 用于PC
+ * @author 3257132998@qq.com
+ */
+
+!function(){
+	if(typeof(jQuery) !== 'function') {
+		throw new Error('请先引入jQuery');
+	}
+
+	/**
+	 * 定义 sFormat
+	 * @type {Object}
+	 */
+	var _a = {};
+	window.sFormat = _a;
+}(),
+function(){
+	/**
+	 * sFormat 配置项
+	 * @type {Object}
+	 */
+	sFormat.config = {
+		e : '.content, .article_content', // 包含详情的div
+	};
+}(),
+function(){
+	/**
+	 * 初始化 sFormat 配置项
+	 * @param  {[type]} config [description]
+	 * @return {[type]}        [description]
+	 */
+	sFormat.init = function(config){
+		if(typeof(config) !== 'object'){
+			// _alert('The config para must be a valid object.');
+			return this;
+		}
+
+		for(_x in config){
+			if(typeof(this.config[_x]) !== 'undefined'){
+				this.config[_x] = config[_x];
+			}
+		}
+
+		$('.content, .article_content').css('overflow-x', 'hidden');
+		return this;
+	}
+
+	/**
+	 * 格式化视频Iframe
+	 * @return {[type]}        [description]
+	 */
+	sFormat.formatVedioIframe = function(){
+		//获取div内所有视频iframe
+		var _document = $(sFormat.config.e);
+
+		if(_document.length > 0){
+			//获取所有的 视频Iframe
+			_document.find('iframe').each(function(){
+				var _src = $(this).attr('src');
+				var _data_src = $(this).attr('data-src');
+
+				if(typeof(_src) =='undefined' && _data_src){
+					_src = _data_src;
+				}
+
+				if(_src.indexOf('youku') == -1 && _src.indexOf('qq') == -1 && _src.indexOf('iqiyi') == -1 && _src.indexOf('mpvideo') == -1){
+					// console.log('11111111remove:', _src)
+					$(this).remove();
+				}else{
+					if(_src.indexOf('mp.weixin.') > -1){ //1009 解决微信视频无法播放的问题
+						$(this).replaceWith('<p><a href="' + _src + '" target="_blank"> <img src="https://img.shangyexinzhi.com/images/weixin-video-thumb.png" /></a></p>');
+					}else{
+						//解决https 下无法引用http 视频资源的Bug
+						//Last modifed by 穆红伟 on 12-20
+						_src = _src.replace(new RegExp(/http:/g), "https:");
+						var _arr = _src.split('?');
+
+						//去除视频外链（Src）默认宽高
+						if(typeof(_arr[1]) != 'undefined'){
+							var _query_obj = _parse_str(_arr[1]);
+							var _query = [];
+
+							for(_x in _query_obj){
+								//移动端的话取window宽度，否则取实际宽度
+								if(_x == 'width'){
+									_query.push(_x + '=' + Math.min($(window).width() - 30, _query_obj[_x]));
+
+								}
+
+								if(_x != 'height'){
+									_query.push(_x + '=' + _query_obj[_x]);
+								}
+							}
+
+							_src = _arr[0] + '?' + _query.join('&')
+						}
+						$(this).attr('src', _src);
+					}
+				}
+			});
+		}
+
+		return this;
+	}
+
+	/**
+	 * 批量处理 图片 匿名访问问题
+	 */
+	sFormat.formatImage = function(){
+		//获取div内所有img
+		let _document = $(sFormat.config.e);
+		let _title = $('title').text();
+		if(_document.length > 0){
+			//获取所有的 img
+			_document.find('img').each(function(){
+				let _src = $(this).attr('src');
+
+				if(_src.indexOf('img.shangyexinzhi.com') > -1){
+					_src = _src.split('?');
+					let _extStart = _src[0].lastIndexOf('.');
+					let _ext = _src[0].substring(_extStart, _src[0].length).toUpperCase();
+// console.log(_ext)
+					if(_ext == '.WEBP'){
+						_src = _src[0] + '?x-oss-process=image/format,jpg';
+					}else{
+						_src = _src.join('?');
+					}
+					// else if(_ext != '.GIF'){
+					// 	_src = _src[0] + '?x-oss-process=image/sharpen,200';
+					// }
+				}
+				// console.log('_src', _src)
+				// $(this).removeAttr('crossorigin').attr('src', _src);
+				// $(this)
+				// console.log(_src)
+				if(navigator.userAgent.indexOf('iPhone') || $(window).width() < 800){
+					$(this).removeAttr('crossorigin').attr('src', _src);
+				}else{
+					$(this).replaceWith('<img alt="' + _title + '" src="' + _src + '" />');
+				}
+			});
+		}
+
+		return this;
+	}
+
+	/**
+	 * 批量处理 搜狐视频 移动端无法播放问题
+	 */
+	sFormat.formatEmbad = function(){
+		//获取div内所有img
+		let _document = $(sFormat.config.e);
+		// console.log(_document.find('embed'))
+		if(_document.length > 0){
+			//获取所有的 embed
+			_document.find('embed').each(function(){
+				let _src = $(this).attr('src');
+				let _objs = _parse_str(_src);
+
+				if(_objs.id){
+					let _iframe_src = 'https://tv.sohu.com/upload/static/share/share_play.html#' + _objs.id + '_9532573_0_9001_0';
+					// $(this).removeAttr('crossorigin');
+					console.log(_iframe_src)
+					$(this).replaceWith('<iframe src="' + _iframe_src + '" /></iframe>');
+				}
+			});
+		}
+
+		return this;
+	}
+
+	/**
+	 * 清除所有只含有<br>的空行
+	 * @return {[type]} [description]
+	 */
+	sFormat.clearEmpty = function(){
+		var _document = $(sFormat.config.e);
+		// _document.find('br').each(function(){
+		// 	var _text = $.trim($(this).parent().html());
+		// 	var _reg=/&nbsp;/g;
+		// 	_text = $.trim(_text.replace(_reg,''));
+		// 	if(!_text && $(this).find("img").length == 0){
+		// 		$(this).parent().remove();
+		// 	}
+		// 	// $(this).remove();
+		// });
+
+		// _document.find('p').each(function(){
+		// 	var _text = $.trim($(this).html());
+		// 	var _reg=/&nbsp;/g;
+		// 	_text = $.trim(_text.replace(_reg,''));
+		// 	if(!_text && $(this).find("img").length == 0){
+		// 		$(this).remove();
+		// 	}
+		// });
+
+		_document.find('*').each(function(){
+			var _text = $.trim($(this).text());
+			var _html = $.trim($(this).html());
+			var _reg=/&nbsp;/g;
+			_text = $.trim(_text.replace(_reg,''));
+
+			if(!_text && $(this).find("img").length == 0 && $(this).find("iframe").length == 0 && $(this).find("embed").length == 0){
+				if($.inArray($(this)[0].tagName.toLowerCase(), ['img', 'iframe', 'br','embed','span']) == -1){
+					$(this).remove();
+				}
+			}
+
+			if($.inArray($(this)[0].tagName.toLowerCase(), ['iframe','br']) > -1){
+				if($(this).parent().hasClass('article_content')){
+					$(this).remove();
+				}
+
+				if($(this).next().length == 0){
+					// $(this).remove();
+				}
+			}
+		});
+		return this;
+	}
+
+	//以下为私有函数
+	/**
+	 * 将字符串解析成多个变量
+	 * @param  {[type]} _str [description]
+	 * @return {[type]}       [description]
+	 */
+	function _parse_str(_str){
+	    var _reg = /([^=&\s]+)[=\s]*([^=&\s]*)/g;
+	    var _obj = {};
+	    while(_reg.exec(_str)){
+	        _obj[RegExp.$1] = RegExp.$2;
+	    }
+	    return _obj;
+	}
+}()
+
+$(function(){
+	sFormat.formatImage().clearEmpty().formatVedioIframe().formatEmbad();
+})
+
+
+
+
+
+
+
+

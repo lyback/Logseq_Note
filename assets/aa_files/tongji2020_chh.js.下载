@@ -1,0 +1,56 @@
+/**
+ * 商业新知统计
+ * @version 1.0.0
+ * @author mu
+ * @updated 2018-03-26
+ * @return {[type]} [description]
+ */
+!function(){
+    if(typeof(jQuery) !== 'function') {
+        throw new Error("请先引入jQuery，否则统计代码无法执行!");
+    }
+
+    var a = {};
+    window.ST = a;
+}(),
+    function(){
+        ST.init = function(a) {
+            console.log(_st)
+            var _post = {
+                _st: _st,
+                request_url: window.location.href,
+                reffer_url: document.referrer,
+            };
+            var _hm = document.createElement("script");
+            // var _hm_up = document.createElement("script");
+            var _hostname = window.location.hostname;
+
+            if(_hostname.indexOf('.shangyexinzhi.com') > -1){
+                _hm.src = "https://log.shangyexinzhi.com/tongji/release_log2020?" + encodeURIComponent(JSON.stringify(_post));
+            }else if(_hostname.indexOf('.shangyexinzhi.cn') > -1){
+                _hm.src = "https://log.shangyexinzhi.com/tongji/release_log2020cs?" + encodeURIComponent(JSON.stringify(_post));
+            }
+
+            // _hm_up.src = "https://log.shangyexinzhi.com/tongji/release_seoStatisticsLog?_st=" + encodeURIComponent(JSON.stringify(_post));
+            console.log(222222);
+            //console.log(_hm.src);
+            // console.log(_hm_up.src);
+            var _s = document.getElementsByTagName("script")[0];
+            _s.parentNode.insertBefore(_hm, _s);
+            console.log(11111);
+
+
+            // var _s = document.getElementsByTagName("script")[0];
+            // _s.parentNode.insertBefore(_hm_up, _s);
+        }
+    }();
+
+ST.init();
+
+
+
+
+
+
+
+

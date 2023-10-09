@@ -1,0 +1,377 @@
+(function ($) {
+    var loginWrapConstruct = function (ele, opt) {
+        this.$ele = ele;
+        this.defaults = {
+            type: 'login',// login 登录  register注册
+            callback:function(){}
+        };
+        this.options = $.extend({}, this.defaults, opt);
+    };
+    loginWrapConstruct.prototype = {
+        init: function () {
+            this.render();
+            this.bind();
+            // if(this.options.type==="register"){
+                this.initValidCode();
+            // }
+            $('.nation-code_wrap').setNationalCode();
+            //记住密码
+            if(this.options.type==="login" && $.cookie("remeber")==="true"){
+                $(".mobile-input").val($.cookie("mobile"));
+                $(".password-input").val($.base64.decode($.cookie("password")));
+                $('.login-password-wrap .remeber').addClass("remember").attr("src",SYXZ.CDN + "/static/images/login/has-select.png");
+            }
+        },
+        render: function () {
+            var $this = this;
+            if(this.options.type==="login"){
+                this.$ele.append(
+                    '<div class="dialog-login_wrapper">' +
+                    '    <div class="dialog-login_inner">' +
+                    '        <div class="dialog-login_title clear">' +
+                    '            <p>登录商业新知</p>' +
+                    '            <img class="dialog-login-close" src="' + SYXZ.CDN + '/static/images/login/dialog-login-close.png" alt="">' +
+                    '        </div>' +
+                    '        <p class="dialog-login_desc">没有账号？<span class="desc-btn">立即注册<img src="' + SYXZ.CDN + '/static/images/login/dialog-login-more.png" alt=""></span></p>' +
+                    '        <div class="dialog-login-form">' +
+                    '            <div class="login-form-item clear">' +
+                    '                <div class="nation-code_wrap"></div>' +
+                    '                <span class="code-line">|</span>' +
+                    '                <input class="mobile-input" type="text" placeholder="请输入手机号" autocomplete="off">' +
+                    '            </div>' +
+                    '            <div class="pValid clear">' +
+                    '                <div id="reset-password-valid" class="nc-container"></div><span class="hintValid"></span>' +
+                    '            </div>' +
+                    '            <div class="login-form-item clear">' +
+                    '                <input class="password-input" type="password" placeholder="请输入密码" autocomplete="off">' +
+                    '                <img class="toggle-pass" src="' + SYXZ.CDN + '/static/images/login/hide-password.png" alt="">' +
+                    '            </div>' +
+                    '            <p class="login-password-wrap">' +
+                    '                <img class="remeber" src="' + SYXZ.CDN + '/static/images/login/no-select.png" alt="">' +
+                    '                <span class="remeber">下次自动登录</span>' +
+                    '                <span class="split-line">|</span>' +
+                    '                <a href="' + SYXZ.DOMAIN + '/login/login">忘记密码</a>' +
+                    '            </p>' +
+                    '            <button class="dialog-login_btn login-btn">登录</button>' +
+                    '        </div>' +
+                    '        <div class="other-login-way">' +
+                    '            <img src="' + SYXZ.CDN + '/static/images/login/other-way-left.png" alt="">' +
+                    '            <span>第三方登录</span>' +
+                    '            <img src="' + SYXZ.CDN + '/static/images/login/other-way-right.png" alt="">' +
+                    '        </div>' +
+                    '        <div class="other-login-btn clear">' +
+                    '            <a href="https://open.weixin.qq.com/connect/qrconnect?appid=wx68c0c0a7f13571d1&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fweixin.php&response_type=code&scope=snsapi_login&state=test#wechat_redirect"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-wx.png"></a>' +
+                    '            <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101329170&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fqq.php&state=test"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-qq.png"></a>' +
+                    '            <a href="https://api.weibo.com/oauth2/authorize?client_id=3554007080&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fweibo.php&state=test"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-wb.png"></a>' +
+                    '        </div>' +
+                    '        <p class="dialog-agree-tip">登录即代表您已同意</p>' +
+                    '        <p class="dialog-agree-tip"><a href="' + SYXZ.DOMAIN + '/h5/xieyigai.html" target="_blank">商业新知用户服务协议</a> 和 <a href="' + SYXZ.DOMAIN + '/h5/privacy-protection.html" target="_blank">商业新知隐私保护指引</a></p>' +
+                    '    </div>' +
+                    '</div>'
+                ).fadeIn(300);
+            }else if(this.options.type==="register"){
+                this.$ele.append(
+                    '<div class="dialog-login_wrapper">' +
+                    '    <div class="dialog-login_inner">' +
+                    '        <div class="dialog-login_title clear">' +
+                    '            <p>注册账号</p>' +
+                    '            <img class="dialog-login-close" src="' + SYXZ.CDN + '/static/images/login/dialog-login-close.png" alt="">' +
+                    '        </div>' +
+                    '        <p class="dialog-login_desc">已有账号？<span class="desc-btn">请点击  登录</span><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-more.png" alt=""></p>' +
+                    '        <div class="dialog-login-form">' +
+                    '            <div class="login-form-item clear">' +
+                    '                <div class="nation-code_wrap"></div>' +
+                    '                <span class="code-line">|</span>' +
+                    '                <input class="mobile-input" type="text" placeholder="请输入手机号" autocomplete="off">' +
+                    '            </div>' +
+                    '            <div class="pValid clear">' +
+                    '                <div id="reset-password-valid" class="nc-container"></div><span class="hintValid"></span>' +
+                    '            </div>' +
+                    '            <div class="login-form-item clear">' +
+                    '                <input class="code-input" type="text" placeholder="输入验证码" autocomplete="off">' +
+                    '                <button class="send-code">发送验证码</button>' +
+                    '            </div>' +
+                    '            <div class="login-form-item clear">' +
+                    '                <input class="password-input" type="password" placeholder="设置密码(6-16位 数字 字母 区分大小写)" autocomplete="off">' +
+                    '                <img class="toggle-pass" src="' + SYXZ.CDN + '/static/images/login/hide-password.png" alt="">' +
+                    '            </div>' +
+                    '            <button class="dialog-login_btn register-btn">注册</button>' +
+                    '        </div>' +
+                    '        <div class="other-login-way">' +
+                    '            <img src="' + SYXZ.CDN + '/static/images/login/other-way-left.png" alt="">' +
+                    '            <span>第三方登录</span>' +
+                    '            <img src="' + SYXZ.CDN + '/static/images/login/other-way-right.png" alt="">' +
+                    '        </div>' +
+                    '        <div class="other-login-btn clear">' +
+                    '            <a href="https://open.weixin.qq.com/connect/qrconnect?appid=wx68c0c0a7f13571d1&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fweixin.php&response_type=code&scope=snsapi_login&state=test#wechat_redirect"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-wx.png"></a>' +
+                    '            <a href="https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=101329170&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fqq.php&state=test"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-qq.png"></a>' +
+                    '            <a href="https://api.weibo.com/oauth2/authorize?client_id=3554007080&redirect_uri=https%3A%2F%2Fwww.shangyexinzhi.com%2Flibs%2Fthird%2Fweibo.php&state=test"><img src="' + SYXZ.CDN + '/static/images/login/dialog-login-wb.png"></a>' +
+                    '        </div>' +
+                    '        <p class="dialog-agree-tip">登录即代表您已同意</p>' +
+                    '        <p class="dialog-agree-tip"><a href="' + SYXZ.DOMAIN + '/h5/xieyigai.html" target="_blank">商业新知用户服务协议</a> 和 <a href="' + SYXZ.DOMAIN + '/h5/privacy-protection.html" target="_blank">商业新知隐私保护指引</a></p>' +
+                    '    </div>' +
+                    '</div>'
+                ).fadeIn(300);
+            }
+
+            $('body').css({
+                height: '100%',
+                overflow: 'hidden'
+            });
+        },
+        bind: function () {
+            $('.dialog-login_wrapper .dialog-login-close').off('click').on('click', $.proxy(this.closePopup, this));
+            $('.dialog-login_wrapper .login-btn').off('click').on('click', $.proxy(this.handleLogin, this));
+            $('.dialog-login_wrapper .register-btn').off('click').on('click', $.proxy(this.handleRegister, this));
+            $('.dialog-login_wrapper .toggle-pass').off('click').on('click', $.proxy(this.handleTogglePass, this));
+            $('.dialog-login_wrapper .remeber').off('click').on('click', $.proxy(this.handleToggleRem, this));
+            $('.dialog-login_wrapper .desc-btn').off('click').on('click', $.proxy(this.handleToggleType, this));
+            $('.dialog-login_wrapper .send-code').off('click').on('click', $.proxy(this.handleSend, this));
+            $('.dialog-login_wrapper input').off('keydown').on('keydown', $.proxy(this.handleKeydown, this));
+        },
+        handleKeydown:function(e){
+            var key = e.which;
+            if (key == 13) {
+                if(this.options.type==="register"){
+                    this.handleRegister();
+                }else if(this.options.type==="login"){
+                    this.handleLogin();
+                }
+            }
+        },
+        /*切换登录注册*/
+        handleToggleType:function(){
+            if(this.options.type==="login"){
+                $('.dialog-login_wrapper').remove();
+                $("body").loginWrap({
+                    type:"register"
+                })
+            }else if(this.options.type==="register"){
+                $('.dialog-login_wrapper').remove();
+                $("body").loginWrap({
+                    type:"login"
+                })
+            }
+        },
+        /*显示密码*/
+        handleTogglePass:function(ev){
+            if($(ev.target).hasClass("show")){
+                $(ev.target).removeClass("show").attr("src",SYXZ.CDN + "/static/images/login/hide-password.png");
+                $(".password-input").attr("type","password");
+            }else{
+                $(ev.target).addClass("show").attr("src",SYXZ.CDN + "/static/images/login/show-password.png");
+                $(".password-input").attr("type","text");
+            }
+        },
+        /*下次自动登录*/
+        handleToggleRem:function(){
+            if($('.login-password-wrap .remeber').hasClass("remember")){
+                $('.login-password-wrap .remeber').removeClass("remember").attr("src",SYXZ.CDN + "/static/images/login/no-select.png");
+            }else{
+                $('.login-password-wrap .remeber').addClass("remember").attr("src",SYXZ.CDN + "/static/images/login/has-select.png");
+            }
+        },
+        /*人机验证*/
+        initValidCode:function(){
+            var $this = this;
+            this.valid_skip = {
+                session_id:"",
+                token:"",
+                sign:"",
+                secne:""
+            }
+            $('html').PCHumanVerif({
+                renderTo:"#reset-password-valid",
+                scene: $this.options.type,
+                customWidth:382,
+                success:function(res){
+                    console.log(res);
+                    $(".dialog-login_wrapper .hintValid").html("");
+                    $this.valid_skip = {
+                        session_id:res.csessionid,
+                        token:res.token,
+                        sign:res.sig,
+                        secne:$this.options.type
+                    }
+                }
+            })
+        },
+        /*登录*/
+        handleLogin: function(){
+            var $this = this;
+            var mobile=$(".mobile-input").val();
+            var password=$(".password-input").val();
+            var nationalCode = $('.tabs-input_wrapper input').val().substr(1);
+            if(!mobile){
+                prompt("200", "2000", false, "请填写手机号");
+                return
+            }
+            if(!password){
+                prompt("200", "2000", false, "请填写密码");
+                return
+            }
+            if(!this.valid_skip.session_id){
+                $(".dialog-login_wrapper .hintValid").html("请先滑动进行验证");
+                return
+            }
+            //记住密码
+            if($('.login-password-wrap .remeber').hasClass("remember")){
+                $.cookie("remeber", "true");  
+                $.cookie("mobile", mobile);  
+                $.cookie("password", $.base64.encode(password));
+            }else{
+                $.cookie("remeber", "");
+                $.cookie("mobile", "");
+                $.cookie("password", "");
+            }
+            getStamp(function(stamp){
+                var secret = getSecret(stamp);
+                $.ajax({
+                    type: "post",
+                    url: window.location.protocol + '//' + window.location.host + '/' + SYXZ.API_DOMAIN + "?c=login&a=login&d=login",
+                    data:{
+                        "mobile":mobile,
+                        "password":password,
+                        'internat_code': nationalCode,
+                        "be_from": $('input[name="be_from"]').val(),
+                        'secne': $this.valid_skip.secne,
+                        'session_id': $this.valid_skip.session_id,
+                        'sign': $this.valid_skip.sign,
+                        'token': $this.valid_skip.token,
+                        'stamp':stamp,
+                        'secret':secret,
+                    },
+                    success: function (data) {
+                        if(data.errcode==0) {
+                            prompt("200", "2000", true, "登录成功");
+                            window.location.reload();
+                        }else if(data.errcode==400001){
+                            prompt("500", "2000", false, "密码系统升级，请重新设置密码");
+                            window.location.href=window.location.protocol + "//" + window.location.host + "/login/reset";
+                        }else {
+                            $this.initValidCode();
+                            prompt("500", "2000", false, data.errstr);
+                        }
+                    },
+                    error: function (arr) {
+                        $this.initValidCode();
+                        console.log(arr)
+                    }
+                })
+            });
+        },
+        /*注册*/
+        handleRegister:function(){
+            var mobile=$(".mobile-input").val();
+            var code=$(".code-input").val();
+            var password = $(".password-input").val();
+            var nationalCode = $('.tabs-input_wrapper input').val().substr(1);
+            if(!mobile){
+                prompt("200", "2000", false, "请填写手机号");
+                return
+            }
+            if(!code){
+                prompt("200", "2000", false, "请填写验证码");
+                return
+            }
+            if(!password){
+                prompt("200", "2000", false, "请填写密码");
+                return
+            }
+            getStamp(function(stamp){
+                var secret = getSecret(stamp);
+                $.ajax({
+                    type: "post",
+                    url: window.location.protocol + '//' + window.location.host + '/' + SYXZ.API_DOMAIN + "?c=login&a=register&d=login",
+                    data:{
+                        "mobile": mobile,
+                        "code": code,
+                        "password": password,
+                        "internat_code": nationalCode,
+                        "be_from": $('input[name="be_from"]').val(),
+                        'stamp':stamp,
+                        'secret':secret,
+                    },
+                    success: function (data) {
+                        if(data.errcode == 0){
+                            prompt("200", "2000", true, "注册成功");
+                            window.location.href = SYXZ.DOMAIN + "/login/perfect?from=register";
+                        } else {
+                            prompt("500", "2000", false, data.errstr);
+                        }
+                    },
+                    error: function (arr) {
+                        console.log(arr)
+                    }
+                });
+            });
+        },
+        handleSend:function(){
+            var $this = this;
+            var mobile=$(".mobile-input").val();
+            if(!mobile){
+                prompt("200", "2000", false, "请填写手机号");
+                return
+            }
+            if(!this.valid_skip.session_id){
+                $(".dialog-login_wrapper .hintValid").html("请先滑动进行验证");
+                return
+            }
+            var nationalCode = $('.tabs-input_wrapper input').val().substr(1);
+            $this.countDown();
+            $.ajax({
+                type: "post",
+                url: window.location.protocol + '//' + window.location.host + '/' + SYXZ.API_DOMAIN + "?c=service&a=sendCode",
+                data:{
+                    "mobile": mobile,
+                    "operation": "register",
+                    'internat_code': nationalCode,
+                    'secne': $this.valid_skip.secne,
+                    'session_id': $this.valid_skip.session_id,
+                    'sign': $this.valid_skip.sign,
+                    'token': $this.valid_skip.token,
+                },
+                success: function (data) {
+                    if(data.errcode==0){
+                        prompt("200", "2000", true, "获取验证码成功");
+                    }else {
+                        prompt("200", "2000", false, data.errstr);
+                    }
+                },
+                error: function (arr) {
+                    console.log(arr)
+                }
+            });
+        },
+        countDown:function(){
+            var $this = this;
+            var count = 60;
+            $('.dialog-login_wrapper .send-code').text(count+"秒后重发").attr('disabled', true);
+            this.timer = setInterval(function(){
+                if(count==0){
+                    clearInterval($this.timer);
+                    $('.dialog-login_wrapper .send-code').text("发送验证码").attr('disabled', false);
+                    $this.initValidCode();
+                }else{
+                    count--;
+                    $('.dialog-login_wrapper .send-code').text(count+"秒后重发");
+                }
+            },1000)
+        },
+        closePopup: function() {
+            var $this = this;
+            $('.dialog-login_wrapper').fadeOut(300, function() {
+                $('.dialog-login_wrapper').remove();
+            });
+            $('body').css({
+                height: 'auto',
+                overflow: 'visible'
+            });
+        }
+    };
+    $.fn.loginWrap = function (options) {
+        var loginWrap = new loginWrapConstruct(this, options);
+        loginWrap.init();
+        return this;
+    };
+})(jQuery);
