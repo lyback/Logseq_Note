@@ -1,0 +1,2 @@
+# Logseq_Note
+Note
