@@ -3,7 +3,7 @@
 	- **Q：如何用Addressable实现按需下载，大体是想要实现下面两个功能**
 	- **Q：Unity程序集依赖处理**
 - [Lua在计算时出现非法值，开启Debugger之后不再触发.mhtml](../assets/Lua在计算时出现非法值，开启Debugger之后不再触发_1696903392925_0.mhtml)
-	- Lua在计算时出现非法值，开启Debugger之后不再触发
-	- 从Gamma空间改为Linear空间会导致性能下降吗
-	- EXR格式在Unity中如何优化
-	- 安卓游戏启动后提示“应用程序异常”
+	- **Lua在计算时出现非法值，开启Debugger之后不再触发**
+	- **从Gamma空间改为Linear空间会导致性能下降吗**
+	- **EXR格式在Unity中如何优化**
+	- **安卓游戏启动后提示“应用程序异常”**
