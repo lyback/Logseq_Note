@@ -1,0 +1,1 @@
+- 安卓设置resizeableActivity = false，则关闭多窗口模式，
