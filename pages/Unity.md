@@ -1,3 +1,3 @@
 - {{embed [[Unity内存优化]]}}
 - {{embed [[Unity资源设置]]}}
--
+- {{embed [[Unity屏幕分辨率适配]]}}
