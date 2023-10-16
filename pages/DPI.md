@@ -1,2 +1,2 @@
 - [每英寸点数 - 维基百科，自由的百科全书 (wikipedia.org)](https://zh.wikipedia.org/wiki/%E6%AF%8F%E8%8B%B1%E5%AF%B8%E7%82%B9%E6%95%B0)
-- 简单解释就是说，DPI越大屏幕越清晰，
+- 简单解释就是说，DPI越大屏幕越清晰，但是绘制的压力就
