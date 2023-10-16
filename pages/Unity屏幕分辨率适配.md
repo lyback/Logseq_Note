@@ -1,0 +1,2 @@
+- Android & IOS
+	- 设置目标DPI，PlayerSettings->Resolution and Presentation->Resolution Scaling Mode : Fixed DPI
