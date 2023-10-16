@@ -1,3 +1,4 @@
 - Android & IOS
 	- 设置目标 [[DPI]] ，当设备DPI超过目标DPI时，Unity会自动缩小屏幕分辨率，Player Settings->Resolution and Presentation->Resolution Scaling Mode : Fixed DPI
 	- 在设置了目标DPI的基础上，游戏运行时可以修改QualitySettings.resolutionScalingFixedDPIFactor（范围0~1），则可以运行时修改屏幕分辨率，且不会影响Android小窗时的分辨率变化。
+	- QualitySettings.resolutionScalingFixedDPIFactor在Unity2018中有bug（[Unity Issue Tracker - [iOS] QualitySettings.resolutionScalingFixedDPIFactor does not update in Realtime (unity3d.com)](https://issuetracker.unity3d.com/issues/ios-qualitysettings-dot-resolutionscalingfixeddpifactor-does-not-update-in-realtime)）
