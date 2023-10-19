@@ -1,0 +1,2 @@
+- 原理： [Stencil Buffer&Stencil Test.mhtml](../assets/Stencil_Buffer&Stencil_Test_1697708438583_0.mhtml)
+- 扩展： [图片挖洞效果Mask的反向实现.mhtml](../assets/图片挖洞效果Mask的反向实现_1697708484255_0.mhtml)
