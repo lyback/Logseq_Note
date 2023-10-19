@@ -2,4 +2,4 @@
 - {{embed [[Unity资源设置]]}}
 - {{embed [[Unity屏幕分辨率适配]]}}
 - {{embed [[Unity异形屏适配]]}}
--
+- {{embed [[Unity UGUI Soft Mask学习与实现]]}}
