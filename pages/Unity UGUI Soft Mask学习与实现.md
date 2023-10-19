@@ -1,1 +1,4 @@
-- [[Oct 19th, 2023]] 初步看起来没有那么简单，先去学习了下Unity自带的Mask，它使用的是模板测试（Stencil），原理：
+- [[Oct 19th, 2023]] 初步看起来没有那么简单。。先去学习了下Unity自带的Mask，它使用的是模板测试（Stencil）
+	- 原理： [Stencil Buffer&Stencil Test.mhtml](../assets/Stencil_Buffer&Stencil_Test_1697708438583_0.mhtml)
+	- 扩展： [图片挖洞效果Mask的反向实现.mhtml](../assets/图片挖洞效果Mask的反向实现_1697708484255_0.mhtml)
+	-
