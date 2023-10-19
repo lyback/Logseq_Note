@@ -2,4 +2,5 @@
 	- 先去学习了下Unity自带的Mask，它使用的是模板测试（Stencil）
 		- {{embed [[Unity UGUI Mask实现原理]]}}
 	- 首先想到是否可以在像素绘制（fragment）的时候获取到模板值，进行透明的计算。简单搜索后得知，好像是不支持该操作。
-	- 接着看了下插件 [Soft Mask 1.6.unitypackage](../assets/Soft_Mask_1_1697709334374_0.6.unitypackage)的实现，
+	- 接着看了下插件 [Soft Mask 1.6.unitypackage](../assets/Soft_Mask_1_1697709334374_0.6.unitypackage) 的实现，它动态去修改了UI元素的材质，并设置了对应的遮罩，在shader根据遮罩去做过渡效果。（代码较为复杂，）
+	-
