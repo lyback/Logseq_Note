@@ -3,5 +3,6 @@
 		- {{embed [[Unity UGUI Mask实现原理]]}}
 	- 首先想到是否可以在像素绘制（fragment）的时候获取到模板值，进行透明的计算。简单搜索后得知，好像是不支持该操作。
 	- 接着看了下插件 [Soft Mask 1.6.unitypackage](../assets/Soft_Mask_1_1697709334374_0.6.unitypackage) 的实现，它动态去修改了UI元素的材质，并设置了对应的遮罩，在shader根据遮罩去做过渡效果。（代码较为复杂，再想想是否有更简洁的实现方法）
-	- 又看了个Github上的实现，实现方法
+	- 又看了个Github上的实现（[GitHub - mob-sakai/SoftMaskForUGUI: UI Soft Mask is a smooth masking component for Unity UI (uGUI) elements.](https://github.com/mob-sakai/SoftMaskForUGUI)），实现方法类似，可能没有其他更简洁的方法了。
+	-
 	-
