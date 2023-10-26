@@ -1,3 +1,3 @@
 - targetSdkVersion：34 -> Android14(U)
-	-
+	- 所有应用都需要的适配
 	-
