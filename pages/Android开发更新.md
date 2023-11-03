@@ -1,3 +1,2 @@
 - targetSdkVersion：34 -> Android14(U)
-	- 所有应用都需要的适配
-	-
+	- [Android 14 又来了？别扶！抬起我来吧！.mhtml](../assets/Android_14_又来了？别扶！抬起我来吧！_1698304754977_0.mhtml)
